@@ -65,17 +65,21 @@
 --GROUP BY Decade;
 
 --4.Find the player who had the most success stealing bases in 2016, where success is measured as the percentage of stolen base attempts which are successful. (A stolen base attempt results either in a stolen base or being caught stealing.) Consider only players who attempted at least 20 stolen bases. Report the players' names, number of stolen bases, number of attempts, and stolen base percentage.
---SELECT success.nameFirst, success.nameLast, success.stolen_bases + success.caught_stealing / success.caught_stealing AS success_stealing
---FROM(SELECT nameFirst, nameLast, SUM(sb) AS stolen_bases, SUM(cs) AS caught_stealing
+--SELECT success.nameFirst, success.nameLast, CAST(CAST(Success.stolen_bases AS DECIMAL(5, 2)) / success.total_attempts * 100 AS DECIMAL(5, 2)) AS success_stealing 
+--FROM(SELECT nameFirst, nameLast, SUM(sb) AS stolen_bases, SUM(sb + cs) AS total_attempts
 --	FROM people
 --	INNER JOIN batting AS B
 --	USING(playerid)
 --	WHERE sb >= 20 
 --		AND yearid = 2016
---	GROUP BY nameFirst, nameLast
---	ORDER BY stolen_bases DESC) AS success;
+--	GROUP BY nameFirst, nameLast) AS success
+--ORDER BY success_stealing DESC
+--LIMIT 1;
 
 --5. From 1970 to 2016, what is the largest number of wins for a team that did not win the world series? What is the smallest number of wins for a team that did win the world series? Doing this will probably result in an unusually small number of wins for a world series champion; determine why this is the case. Then redo your query, excluding the problem year. How often from 1970 to 2016 was it the case that a team with the most wins also won the world series? What percentage of the time?
-SELECT *
-FROM teams
+--WITH largest wins AS(
+--SELECT name, W, WSWin 
+
+--SELECT *
+--FROM teams
 
