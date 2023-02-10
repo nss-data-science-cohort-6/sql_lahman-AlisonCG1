@@ -42,19 +42,55 @@
 --ORDER BY total_salary DESC;
 
 --2.Using the fielding table, group players into three groups based on their position: label players with position OF as "Outfield", those with position "SS", "1B", "2B", and "3B" as "Infield", and those with position "P" or "C" as "Battery". Determine the number of putouts made by each of these three groups in 2016.
-SELECT pe.playerid, fg.pos AS position,
-	CASE WHEN fg.pos = 'OF' THEN 'Outfield'
-	WHEN fg.pos = 'SS' OR fg.pos = '1B' OR fg.pos = '2B' OR fg.pos = '3B' THEN 'Infield' 
-	WHEN fg.pos = 'P' OR fg.pos = 'C' THEN 'Battery' END AS positioning,
-	SUM(po)
-FROM fielding AS fg
-INNER JOIN people AS pe
-ON pe.playerid = fg.playerid
-WHERE fg.yearid = 2016
-GROUP BY pe.playerid, fg.pos;
+--SELECT pe.playerid, fg.pos AS position,
+--	CASE WHEN fg.pos = 'OF' THEN 'Outfield'
+--	WHEN fg.pos = 'SS' OR fg.pos = '1B' OR fg.pos = '2B' OR fg.pos = '3B' THEN 'Infield' 
+--	WHEN fg.pos = 'P' OR fg.pos = 'C' THEN 'Battery' END AS positioning,
+--	SUM(po)
+--FROM fielding AS fg
+--INNER JOIN people AS pe
+--ON pe.playerid = fg.playerid
+--WHERE fg.yearid = 2016
+--GROUP BY pe.playerid, fg.pos;
 
 
 --3.Find the average number of strikeouts per game by decade since 1920. Round the numbers you report to 2 decimal places. Do the same for home runs per game. Do you see any trends? (Hint: For this question, you might find it helpful to look at the generate_series function 
---SELECT 
---FROM
 
+--WITH decades AS (
+--	SELECT * FROM generate_series(1870, 2021, 10)AS gen)
+--SELECT gen AS Decade, ROUND(AVG((so / g)), 2) AS avg_strikeouts_per_game
+--FROM pitching p
+--INNER JOIN decades
+--ON p.yearid BETWEEN gen AND gen+9
+--GROUP BY Decade;
+
+--4.Find the player who had the most success stealing bases in 2016, where success is measured as the percentage of stolen base attempts which are successful. (A stolen base attempt results either in a stolen base or being caught stealing.) Consider only players who attempted at least 20 stolen bases. Report the players' names, number of stolen bases, number of attempts, and stolen base percentage.
+
+
+SELECT namefirst, namelast
+FROM people
+INNER JOIN fielding
+USING(playerid)
+--WITH stolen AS
+--SELECT playerid,
+--	(SB + CS)
+--FROM batting
+--WHERE yearid = 2016)
+
+SELECT success.stolen_bases --/ taco.stolen_bases + taco.caught_stealing
+FROM(SELECT nameFirst, nameLast, SUM(sb) AS stolen_bases, SUM(cs) AS caught_stealing 
+	FROM people
+	INNER JOIN batting AS B
+	USING(playerid)
+	WHERE sb >= 20 
+		AND yearid = 2016
+	GROUP BY nameFirst, nameLast
+	ORDER BY stolen_bases DESC) AS success;
+
+--SELECT nameFirst, nameLast, SUM(sb) AS stolen_bases, SUM(cs) AS caught_stealing
+--FROM people
+--INNER JOIN batting B
+--USING(playerid)
+--WHERE sb >= 20
+--GROUP BY nameFirst, nameLast
+--ORDER BY stolen_bases DESC;
