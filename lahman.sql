@@ -76,10 +76,35 @@
 --ORDER BY success_stealing DESC
 --LIMIT 1;
 
---5. From 1970 to 2016, what is the largest number of wins for a team that did not win the world series? What is the smallest number of wins for a team that did win the world series? Doing this will probably result in an unusually small number of wins for a world series champion; determine why this is the case. Then redo your query, excluding the problem year. How often from 1970 to 2016 was it the case that a team with the most wins also won the world series? What percentage of the time?
---WITH largest wins AS(
---SELECT name, W, WSWin 
+--5. From 1970 to 2016, what is the largest number of wins for a team that did not win the world series? 
+--What is the smallest number of wins for a team that did win the world series? 
+--Doing this will probably result in an unusually small number of wins for a world series champion; 
+--determine why this is the case. Then redo your query, excluding the problem year. 
+--How often from 1970 to 2016 was it the case that a team with the most wins also won the world series? 
+--What percentage of the time?
 
---SELECT *
+--(SELECT *
+--FROM (SELECT franchid AS franchise,
+--	SUM(CASE WHEN WSWin = 'Y' THEN 1 ELSE 0 END) AS total_ws_wins,
+--	SUM(W) AS total_regular_wins
 --FROM teams
-
+--WHERE yearid BETWEEN 1970 AND 2016
+--GROUP BY franchid
+--ORDER BY franchid) AS winners
+--WHERE total_ws_wins = 0
+--ORDER BY total_regular_wins DESC
+--LIMIT 1
+--)
+--UNION ALL
+--(SELECT *
+--FROM (SELECT franchid AS franchise,
+--	SUM(CASE WHEN WSWin = 'Y' THEN 1 ELSE 0 END) AS total_ws_wins,
+--	SUM(W) AS total_regular_wins
+--FROM teams
+--WHERE yearid BETWEEN 1970 AND 2016
+--GROUP BY franchid
+--ORDER BY franchid) AS losses
+--WHERE total_ws_wins <> 0
+--ORDER BY total_regular_wins
+--LIMIT 1
+--);
