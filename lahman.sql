@@ -135,52 +135,36 @@ ORDER BY success_stealing DESC;
 --6.Which managers have won the TSN Manager of the Year award in both the National League (NL) 
 --and the American League (AL)? Give their full name and the teams that they were managing when they won the award.
 
-SELECT * 
-FROM people
-INNER JOIN Managers 
-USING(playerid)
-INNER JOIN AwardsManagers 
-USING(playerid)
-WHERE awardid = 'TSN Manager of the Year'
-
-
-WITH manager AS(
-	SELECT namefirst AS name, namelast AS lastname, 
-		   awardid, yearid, lgid
-	FROM people AS plp
-	INNER JOIN AwardsManagers AS mgr
+SELECT manager.namefirst, manager.namelast, manager.playerid
+FROM(
+	SELECT plp.namefirst, plp.namelast, 
+		   amgr.awardid, amgr.yearid, amgr.lgid, amgr.playerid, mgr.teamid
+	FROM AwardsManagers AS amgr
+	LEFT JOIN Managers AS mgr
 	USING(playerid)
-	WHERE awardid = 'TSN Manager of the Year'),
-Awards AS(
-SELECT namefirst AS name, namelast AS lastname, 
-		   awardid, yearid, lgid
-	FROM people AS plp
-	INNER JOIN AwardsManagers AS mgr
+	LEFT JOIN people AS plp
 	USING(playerid)
-	WHERE lgid = 'AL' AND 'NL')
-	
-SELECT name, lastname, 
-	    awardid, yearid, lgid,
-		name, lastname, 
-	   awardid, yearid, lgid
-FROM manager
-INNER JOIN Awards
-USING(playerid)
-
-SELECT TSN_WINNERS_Names.playerid, TSN_WINNERS_Names.nameFirst, TSN_WINNERS_Names.nameLast,TSN_WINNERS_Names.Team2, COUNT( DISTINCT lgid) AS lg_count
-		FROM (WITH TSN_WINNERS AS (SELECT awardsmanagers.yearid, awardsmanagers.playerid, awardsmanagers.lgid, managers.teamid AS Team, awardid
-				FROM awardsmanagers
-				INNER JOIN managers
-				ON awardsmanagers.playerid = managers.playerid AND awardsmanagers.yearid = managers.yearid
-				WHERE awardid LIKE '%TSN%')
-			SELECT TSN_WINNERS.yearid, TSN_WINNERS.playerid, nameFirst, nameLast, TSN_WINNERS.Team AS Team2, TSN_WINNERS.lgid
-			FROM people
-			INNER JOIN TSN_WINNERS
-			USING (playerid)) AS TSN_WINNERS_Names
-		WHERE TSN_WINNERS_Names.playerid IN ('leylaji99', 'johnsda02', 'coxbo01', 'larusto01')
-		GROUP BY TSN_WINNERS_Names.playerid, TSN_WINNERS_Names.nameFirst, TSN_WINNERS_Names.nameLast, TSN_WINNERS_Names.Team2
-		ORDER BY lg_count DESC
+	WHERE amgr.awardid = 'TSN Manager of the Year' AND amgr.lgid = 'AL' OR amgr.lgid = 'NL') AS manager
+GROUP BY manager.namefirst, manager.namelast, manager.playerid
+HAVING COUNT(DISTINCT lgid) = 2;
 
 
-select *
-FROM AwardsManagers 
+
+--SELECT TSN_WINNERS_Names.playerid, TSN_WINNERS_Names.nameFirst, TSN_WINNERS_Names.nameLast,TSN_WINNERS_Names.Team2, COUNT( DISTINCT lgid) AS lg_count
+--		FROM (WITH TSN_WINNERS AS (SELECT awardsmanagers.yearid, awardsmanagers.playerid, awardsmanagers.lgid, managers.teamid AS Team, awardid
+--				FROM awardsmanagers
+--				INNER JOIN managers
+--				ON awardsmanagers.playerid = managers.playerid AND awardsmanagers.yearid = managers.yearid
+--				WHERE awardid LIKE '%TSN%')
+--			SELECT TSN_WINNERS.yearid, TSN_WINNERS.playerid, nameFirst, nameLast, TSN_WINNERS.Team AS Team2, TSN_WINNERS.lgid
+--			FROM people
+--			INNER JOIN TSN_WINNERS
+--			USING (playerid)) AS TSN_WINNERS_Names
+--		WHERE TSN_WINNERS_Names.playerid IN ('leylaji99', 'johnsda02', 'coxbo01', 'larusto01')
+--		GROUP BY TSN_WINNERS_Names.playerid, TSN_WINNERS_Names.nameFirst, TSN_WINNERS_Names.nameLast, TSN_WINNERS_Names.Team2
+--		ORDER BY lg_count DESC
+
+
+-- select *
+-- FROM AwardsManagers
+-- WHERE playerid = 'herzowh01'
