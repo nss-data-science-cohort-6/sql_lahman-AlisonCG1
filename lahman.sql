@@ -79,15 +79,15 @@
 --ORDER BY decade;
 
 --4.Find the player who had the most success stealing bases in 2016, where success is measured as the percentage of stolen base attempts which are successful. (A stolen base attempt results either in a stolen base or being caught stealing.) Consider only players who attempted at least 20 stolen bases. Report the players' names, number of stolen bases, number of attempts, and stolen base percentage.
-SELECT success.nameFirst, success.nameLast, CAST(CAST(Success.stolen_bases AS DECIMAL(5, 2)) / success.total_attempts * 100 AS DECIMAL(5, 2)) AS success_stealing 
-FROM(SELECT nameFirst, nameLast, SUM(sb) AS stolen_bases, SUM(sb + cs) AS total_attempts
-	FROM people
-	INNER JOIN batting AS B
-	USING(playerid)
-	WHERE sb >= 20 
-		AND yearid = 2016
-	GROUP BY nameFirst, nameLast) AS success
-ORDER BY success_stealing DESC;
+-- SELECT success.nameFirst, success.nameLast, CAST(CAST(Success.stolen_bases AS DECIMAL(5, 2)) / success.total_attempts * 100 AS DECIMAL(5, 2)) AS success_stealing 
+-- FROM(SELECT nameFirst, nameLast, SUM(sb) AS stolen_bases, SUM(sb + cs) AS total_attempts
+-- 	FROM people
+-- 	INNER JOIN batting AS B
+-- 	USING(playerid)
+-- 	WHERE sb >= 20 
+-- 		AND yearid = 2016
+-- 	GROUP BY nameFirst, nameLast) AS success
+-- ORDER BY success_stealing DESC;
 
 --5. From 1970 to 2016, what is the largest number of wins for a team that did not win the world series? 
 --What is the smallest number of wins for a team that did win the world series? 
@@ -135,36 +135,57 @@ ORDER BY success_stealing DESC;
 --6.Which managers have won the TSN Manager of the Year award in both the National League (NL) 
 --and the American League (AL)? Give their full name and the teams that they were managing when they won the award.
 
-SELECT manager.namefirst, manager.namelast, manager.playerid
-FROM(
-	SELECT plp.namefirst, plp.namelast, 
-		   amgr.awardid, amgr.yearid, amgr.lgid, amgr.playerid, mgr.teamid
-	FROM AwardsManagers AS amgr
-	LEFT JOIN Managers AS mgr
-	USING(playerid)
-	LEFT JOIN people AS plp
-	USING(playerid)
-	WHERE amgr.awardid = 'TSN Manager of the Year' AND amgr.lgid = 'AL' OR amgr.lgid = 'NL') AS manager
-GROUP BY manager.namefirst, manager.namelast, manager.playerid
-HAVING COUNT(DISTINCT lgid) = 2;
+-- SELECT manager.namefirst, manager.namelast, manager.playerid
+-- FROM(
+-- 	SELECT plp.namefirst, plp.namelast, 
+-- 		   amgr.awardid, amgr.yearid, amgr.lgid, amgr.playerid, mgr.teamid
+-- 	FROM AwardsManagers AS amgr
+-- 	LEFT JOIN Managers AS mgr
+-- 	USING(playerid)
+-- 	LEFT JOIN people AS plp
+-- 	USING(playerid)
+-- 	WHERE amgr.awardid = 'TSN Manager of the Year' AND amgr.lgid = 'AL' OR amgr.lgid = 'NL') AS manager
+-- GROUP BY manager.namefirst, manager.namelast, manager.playerid
+-- HAVING COUNT(DISTINCT lgid) = 2;
 
 
 
---SELECT TSN_WINNERS_Names.playerid, TSN_WINNERS_Names.nameFirst, TSN_WINNERS_Names.nameLast,TSN_WINNERS_Names.Team2, COUNT( DISTINCT lgid) AS lg_count
---		FROM (WITH TSN_WINNERS AS (SELECT awardsmanagers.yearid, awardsmanagers.playerid, awardsmanagers.lgid, managers.teamid AS Team, awardid
---				FROM awardsmanagers
---				INNER JOIN managers
---				ON awardsmanagers.playerid = managers.playerid AND awardsmanagers.yearid = managers.yearid
---				WHERE awardid LIKE '%TSN%')
---			SELECT TSN_WINNERS.yearid, TSN_WINNERS.playerid, nameFirst, nameLast, TSN_WINNERS.Team AS Team2, TSN_WINNERS.lgid
---			FROM people
---			INNER JOIN TSN_WINNERS
---			USING (playerid)) AS TSN_WINNERS_Names
---		WHERE TSN_WINNERS_Names.playerid IN ('leylaji99', 'johnsda02', 'coxbo01', 'larusto01')
---		GROUP BY TSN_WINNERS_Names.playerid, TSN_WINNERS_Names.nameFirst, TSN_WINNERS_Names.nameLast, TSN_WINNERS_Names.Team2
---		ORDER BY lg_count DESC
+-- SELECT TSN_WINNERS_Names.playerid, TSN_WINNERS_Names.nameFirst, TSN_WINNERS_Names.nameLast,TSN_WINNERS_Names.Team2, COUNT( DISTINCT lgid) AS lg_count
+-- 		FROM (WITH TSN_WINNERS AS (SELECT awardsmanagers.yearid, awardsmanagers.playerid, awardsmanagers.lgid, managers.teamid AS Team, awardid
+-- 				FROM awardsmanagers
+-- 				INNER JOIN managers
+-- 				ON awardsmanagers.playerid = managers.playerid AND awardsmanagers.yearid = managers.yearid
+-- 				WHERE awardid LIKE '%TSN%')
+-- 			SELECT TSN_WINNERS.yearid, TSN_WINNERS.playerid, nameFirst, nameLast, TSN_WINNERS.Team AS Team2, TSN_WINNERS.lgid
+-- 			FROM people
+-- 			INNER JOIN TSN_WINNERS
+-- 			USING (playerid)) AS TSN_WINNERS_Names
+-- 		WHERE TSN_WINNERS_Names.playerid IN ('leylaji99', 'johnsda02', 'coxbo01', 'larusto01')
+-- 		GROUP BY TSN_WINNERS_Names.playerid, TSN_WINNERS_Names.nameFirst, TSN_WINNERS_Names.nameLast, TSN_WINNERS_Names.Team2
+-- 		ORDER BY lg_count DESC
 
+--7. Which pitcher was the least efficient in 2016 in terms of salary / strikeouts? Only consider pitchers who started at least 10 games (across all teams). 
+--Note that pitchers often play for more than one team in a season, so be sure that you are counting all stats for each player.
 
--- select *
--- FROM AwardsManagers
--- WHERE playerid = 'herzowh01'
+-- SO / SALARY * 100 = PERCENTAGE OF EFFICIENCY. 
+-- WHOEVER HAS THE SMALLEST NUMBER IS THE LEAST EFFICIENT 
+
+-- WITH pitchers AS(
+-- SELECT pg.playerid, pg.g, pg.teamid, SUM(so / salary) * 100 AS least_efficient
+-- FROM pitching AS pg
+-- LEFT JOIN salaries AS sl
+-- USING(playerid)
+-- WHERE pg.yearid = 2016
+-- GROUP BY pg.playerid, pg.g, pg.teamid)
+
+-- SELECT playerid, g, teamid, least_efficient
+-- FROM pitchers 
+-- ORDER BY g DESC;
+
+--8.Find all players who have had at least 3000 career hits. 
+--Report those players' names, total number of hits,
+--and the year they were inducted into the hall of fame (If they were not inducted into the hall of fame, put a null in that column.) 
+--Note that a player being inducted into the hall of fame is indicated by a 'Y' in the inducted column of the halloffame table.
+
+SELECT *
+FROM halloffame
