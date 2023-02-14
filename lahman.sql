@@ -189,3 +189,12 @@
 
 SELECT *
 FROM halloffame
+
+WITH players_hits AS(
+SELECT playerid, SUM(h) AS sum_hits
+FROM Batting
+GROUP BY playerid)
+SELECT playerid, sum_hits
+FROM players_hits
+WHERE sum_hits >= 3000
+ORDER BY sum_hits DESC;
