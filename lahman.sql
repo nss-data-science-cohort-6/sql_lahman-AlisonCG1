@@ -187,14 +187,29 @@
 --and the year they were inducted into the hall of fame (If they were not inducted into the hall of fame, put a null in that column.) 
 --Note that a player being inducted into the hall of fame is indicated by a 'Y' in the inducted column of the halloffame table.
 
-SELECT *
-FROM halloffame
+--SELECT *
+--FROM halloffame
 
 WITH players_hits AS(
-SELECT playerid, SUM(h) AS sum_hits
-FROM Batting
-GROUP BY playerid)
-SELECT playerid, sum_hits
+	SELECT playerid, SUM(h) AS sum_hits
+	FROM Batting
+	GROUP BY playerid),
+players_name AS(
+	SELECT ht.playerid, ht.sum_hits, plp.namefirst, plp.namelast, hall.yearid, hall.inducted
+	FROM players_hits AS ht
+	LEFT JOIN people AS plp
+ 	USING(playerid)
+	LEFT JOIN halloffame AS hall
+	USING(playerid)
+	--WHERE hall.inducted = 'Y'
+)
+	
+SELECT players_name.playerid, players_name.namefirst, players_name.namelast, players_name.sum_hits, players_name.yearid, players_name.inducted
 FROM players_hits
-WHERE sum_hits >= 3000
-ORDER BY sum_hits DESC;
+JOIN players_name ON players_hits.playerid = players_name.playerid 
+WHERE players_hits.sum_hits >= 3000
+ORDER BY players_hits.sum_hits DESC;
+
+
+--SELECT *
+--FROM Batting
