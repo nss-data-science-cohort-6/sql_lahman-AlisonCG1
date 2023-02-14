@@ -190,21 +190,24 @@
 --SELECT *
 --FROM halloffame
 
-WITH players_hits AS(
+WITH 
+players_hits AS(
 	SELECT playerid, SUM(h) AS sum_hits
 	FROM Batting
 	GROUP BY playerid),
+players_hof AS(
+	SELECT playerid, yearid, inducted
+	FROM halloffame
+	WHERE inducted = 'Y'),
 players_name AS(
-	SELECT ht.playerid, ht.sum_hits, plp.namefirst, plp.namelast, hall.yearid, hall.inducted
+	SELECT ht.playerid, ht.sum_hits, plp.namefirst, plp.namelast, phof.yearid
 	FROM players_hits AS ht
 	LEFT JOIN people AS plp
  	USING(playerid)
-	LEFT JOIN halloffame AS hall
+	LEFT JOIN players_hof as phof
 	USING(playerid)
-	--WHERE hall.inducted = 'Y'
 )
-	
-SELECT players_name.playerid, players_name.namefirst, players_name.namelast, players_name.sum_hits, players_name.yearid, players_name.inducted
+SELECT players_name.playerid, players_name.namefirst, players_name.namelast, players_name.sum_hits, players_name.yearid
 FROM players_hits
 JOIN players_name ON players_hits.playerid = players_name.playerid 
 WHERE players_hits.sum_hits >= 3000
