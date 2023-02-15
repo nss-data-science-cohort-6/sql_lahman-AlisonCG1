@@ -187,32 +187,64 @@
 --and the year they were inducted into the hall of fame (If they were not inducted into the hall of fame, put a null in that column.) 
 --Note that a player being inducted into the hall of fame is indicated by a 'Y' in the inducted column of the halloffame table.
 
---SELECT *
---FROM halloffame
-
-WITH 
-players_hits AS(
-	SELECT playerid, SUM(h) AS sum_hits
-	FROM Batting
-	GROUP BY playerid),
-players_hof AS(
-	SELECT playerid, yearid, inducted
-	FROM halloffame
-	WHERE inducted = 'Y'),
-players_name AS(
-	SELECT ht.playerid, ht.sum_hits, plp.namefirst, plp.namelast, phof.yearid
-	FROM players_hits AS ht
-	LEFT JOIN people AS plp
- 	USING(playerid)
-	LEFT JOIN players_hof as phof
-	USING(playerid)
-)
-SELECT players_name.playerid, players_name.namefirst, players_name.namelast, players_name.sum_hits, players_name.yearid
-FROM players_hits
-JOIN players_name ON players_hits.playerid = players_name.playerid 
-WHERE players_hits.sum_hits >= 3000
-ORDER BY players_hits.sum_hits DESC;
+-- WITH 
+-- players_hits AS(
+-- 	SELECT playerid, SUM(h) AS sum_hits
+-- 	FROM Batting
+-- 	GROUP BY playerid),
+-- players_hof AS(
+-- 	SELECT playerid, yearid, inducted
+-- 	FROM halloffame
+-- 	WHERE inducted = 'Y'),
+-- players_name AS(
+-- 	SELECT ht.playerid, ht.sum_hits, plp.namefirst, plp.namelast, phof.yearid
+-- 	FROM players_hits AS ht
+-- 	LEFT JOIN people AS plp
+--  	USING(playerid)
+-- 	LEFT JOIN players_hof as phof
+-- 	USING(playerid)
+-- )
+-- SELECT players_name.playerid, players_name.namefirst, players_name.namelast, players_name.sum_hits, players_name.yearid
+-- FROM players_hits
+-- JOIN players_name ON players_hits.playerid = players_name.playerid 
+-- WHERE players_hits.sum_hits >= 3000
+-- ORDER BY players_hits.sum_hits DESC;
 
 
---SELECT *
---FROM Batting
+--9. Find all players who had at least 1,000 hits for two different teams. Report those players' full names.
+
+-- WITH players_h AS (
+-- 	SELECT teamid, playerid, SUM(h) AS sum_hts
+-- 	FROM Batting 
+-- 	GROUP BY teamid, playerid
+-- 	HAVING SUM(h) >= 1000)
+	
+-- SELECT plp.namefirst, plp.namelast, players_h.playerid
+-- FROM players_h
+-- INNER JOIN people AS plp
+-- USING(playerid)
+-- GROUP BY players_h.playerid, plp.namefirst, plp.namelast
+-- HAVING COUNT(players_h.teamid) = 2;
+
+
+
+--10. Find all players who hit their career highest number of home runs in 2016.
+--Consider only players who have played in the league for at least 10 years, and who hit at least one home run in 2016.
+--Report the players' first and last names and the number of home runs they hit in 2016.
+
+-- SELECT ID, nameFIRST, nameLast
+-- FROM (WITH players AS (SELECT playerid, SUM(hr) AS Homers 
+-- 				FROM batting 
+-- 				WHERE yearid = 2016 
+-- 				GROUP BY playerid)
+-- 	SELECT players.playerid AS ID, yearid AS Year, players.Homers AS Homers2, MAX(hr) AS Max_Homers
+-- 	FROM batting
+-- 	INNER JOIN players
+-- 	ON batting.playerid = players.playerid
+-- 	WHERE players.Homers > 0
+-- 	GROUP BY players.playerid, yearid, players.Homers
+-- 	HAVING MAX(hr) = players.Homers) AS Homeruns
+-- LEFT JOIN people
+-- ON ID = people.playerid
+-- WHERE year = 2016;
+
